@@ -72,6 +72,13 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 }
 
 // SetupWithManager sets up the controller with the Manager.
+//
+// Unlike RedisCluster, RedisReplication, and RedisSentinel controllers, the Redis standalone
+// controller does not require periodic requeue. Those controllers need timed requeues to
+// continuously monitor cluster topology, replication health, slot distribution, and sentinel
+// readiness — state that can change independently of Kubernetes resource events. The standalone
+// controller only creates a StatefulSet and a Service with no ongoing distributed state to poll,
+// so a timed requeue is unnecessary.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager, opts controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&rvb2.Redis{}).
